@@ -3,14 +3,19 @@
 		:class="setClassLayer"
 	>
 
-		<VListAlert
+		<!-- <VListAlert
 			:info="notify.info"
 			@remove="remove"
 		/>
 
 		<VListConfirm
+			:info="notify.info"
 			:confirm="notify.confirm"
-			:startZIndex="notify.info.length"
+			@remove="remove"
+		/> -->
+
+		<VNotifyList
+			:notifyList="notifyList"
 			@remove="remove"
 		/>
 
@@ -18,50 +23,49 @@
 </template>
 
 <script>
-import VListAlert from './components/v-list-info'
-import VListConfirm from './components/v-list-confirm'
-
+import VNotifyList from './components/v-notify-list'
 export default {
-	name: 'V2NotifyContainer',
+	name: 'VNotifyContainer',
 	components: {
-		VListAlert,
-		VListConfirm,
+		VNotifyList
 	},
 	data: () => ({
-		cards: [],
-		notify: {
-			info: [],
-			confirm: []
-		}
+		notifyList: [],
+		types: ['success', 'alert', 'warning', 'question']
 	}),
 	computed: {
 		setClassLayer() {
 			return {
-				'v2-notify-container--layer': this.notify.confirm.length
+				'v2-notify-container--layer': this.isLayer
 			}
+		},
+		isLayer() {
+			return this.notifyList.some(({ options: { layer } }) => layer)
 		}
 	},
 	methods: {
-		add({ id, options, config }) {
+		add({ id, options: o, config }) {
 			const { sort } = config
-				,	type = options?.type ?? 'info'
+				, def = 'alert'
+				, type = o?.type ? this.types.includes(o.type) ? o.type : def : def
+				, item = {
+					id,
+					options: {
+						...o,
+						type,
+						image: require(`./assets/svg/${type}.svg`)
+					}
+				}
 
-			if (this.notify[type]) {
-				sort && sort === 'desc'
-					? this.notify[type].unshift({ id, options })
-					: this.notify[type].push({ id, options })
-
-				console.warn(this.notify)
-
-			} else {
-				console.warn('[v2-notify]: укажите корректный тип оповещания')
-			}
+			sort && sort === 'desc'
+				? this.notifyList.unshift(item)
+				: this.notifyList.push(item)
 		},
-		remove({ id, type }) {
-			const index = this.notify[type]
+		remove(id) {
+			const index = this.notifyList
 				.findIndex(({ id: _id }) => _id === id)
 
-			this.$delete(this.notify[type], index)
+			this.$delete(this.notifyList, index)
 		}
 	}
 }

@@ -1,27 +1,28 @@
 <template>
 	<div>
-		<VItemInfo
-			v-for="({ id, options }, i) of info"
+		<VNotifyItem
+			v-for="({ id, options }, i) of notifyList"
 			v-bind="options"
 			
 			:key="id"
 			:index="i"
+			:length="notifyList.length"
 
-			@remove="$emit('remove', { id, type: 'info' })"
+			@remove="$emit('remove', id)"
 		/>
 	</div>
 </template>
 
 <script>
-import VItemInfo from './item/v-item-info.vue'
+import VNotifyItem from './v-notify-item'
 
 export default {
-	name: 'VListInfo',
+	name: 'VNotifyList',
 	components: {
-		VItemInfo
+		VNotifyItem
 	},
 	props: {
-		info: {
+		notifyList: {
 			type: Array,
 			default: () => ([])
 		}
