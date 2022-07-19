@@ -1,18 +1,8 @@
 <template>
 	<div class="v2-notify-container"
 		:class="setClassLayer"
+		@click="closeOnLayerId ? remove(closeOnLayerId) : null"
 	>
-
-		<!-- <VListAlert
-			:info="notify.info"
-			@remove="remove"
-		/>
-
-		<VListConfirm
-			:info="notify.info"
-			:confirm="notify.confirm"
-			@remove="remove"
-		/> -->
 
 		<VNotifyList
 			:notifyList="notifyList"
@@ -41,7 +31,14 @@ export default {
 		},
 		isLayer() {
 			return this.notifyList.some(({ options: { layer } }) => layer)
-		}
+		},
+		closeOnLayerId() {
+			const closeOnLayer = this.notifyList
+				.findLast(({ options: { closeOnLayer } }) => closeOnLayer)
+			
+			return closeOnLayer ? closeOnLayer.id : null
+		},
+
 	},
 	methods: {
 		add({ id, options: o, config }) {
@@ -73,15 +70,18 @@ export default {
 
 <style lang="scss">
 	.v2-notify-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		border: 1px solid green;
+		
 		&--layer {
 			width: 100%;
 			height: 100%;
 			
-			position: fixed;
-			top: 0;
-			left: 0;
 			z-index: 1999;
-	
+
+			transition: .2s;
 			background: rgba(0, 0, 0, .5);
 		}
 	}
