@@ -21,7 +21,7 @@ export default {
 	},
 	data: () => ({
 		notifyList: [],
-		types: ['success', 'alert', 'warning', 'question']
+		types: ['info', 'error', 'success', 'warning', 'question']
 	}),
 	computed: {
 		setClassLayer() {
@@ -43,7 +43,7 @@ export default {
 	methods: {
 		add({ id, options: o, config }) {
 			const { sort } = config
-				, def = 'alert'
+				, def = 'info'
 				, type = o?.type ? this.types.includes(o.type) ? o.type : def : def
 				, item = {
 					id,

@@ -1,17 +1,25 @@
 <template>
 	<div class="v-notify-item"
-		:class="`v-notify-item--${type}`"
-		:style="[setStylePositionItem, setStyleItem, {
-			'--image': `url(${image})`,
-			'--translateX': isPieceOfSideCenter ? '-50%' : 0,
-			'--translateY': isUpTransform ? '-80vh' : '50vh',
-		}]"
+		:ref="id"
+		:class="{ 'v-notify-item--behind': !lastOfType && !isGrab && !isPrevShow}"
+		:style="[
+			setStyleItem,
+			isGrab ? setComputedPositionItem : setStylePositionItem,
+			{
+				'--image': `url(${image})`,
+				'--translateX': isPieceOfSideCenter ?  `calc(50% - ${(width / 2)}px)` : 0,
+				'--translateY': isUpTransform ? '-70vh' : '50vh',
+			}
+		]"
+
+		@mousedown="grab"
 	>
 
 		<img v-show="isCloseButton" 
 			class="v-notify-item-close"
 			src="../assets/svg/close.svg"
 			alt="close"
+			@mousedown.stop
 			@click="$emit('remove')"
 		>
 		
@@ -29,7 +37,7 @@
 			</p>
 
 			<component :is="component"
-				@result="setResult"
+				@input="setComponentValue"
 			/>
 
 		</div>
@@ -45,6 +53,7 @@
 					color: action.active ? '#fff' : mapColor[type],
 					border: `1px solid ${mapColor[type]}`
 				}"
+				@mousedown.stop
 				@click="makeAction(action)"
 			>
 				{{ action.name }}
@@ -55,9 +64,22 @@
 </template>
 
 <script>
+const getPosition = () => {
+	return {
+		x: 0,
+		y: 0,
+		layerX: 0,
+		layerY: 0
+	}
+}
+
 export default {
 	name: 'VNotifyItem',
 	props: {
+		id: {
+			type: Symbol,
+			default: Symbol('id')
+		},
 		type: {
 			type: String,
 			default: ''
@@ -106,15 +128,22 @@ export default {
 			type: Boolean,
 			default: false
 		},
+		prevIdOfGroup: null,
 		closingTime: null,
 		component: null
 	},
 	data: () => ({
+		isPrevShow: false,
+		width: 0,
+		height: 0,
 		zIndex: 2000,
 		timeoutId: 0,
-		cResult: null,
+		isGrab: false,
+		componentValue: null,
+		computedPos: getPosition(),
 		mapColor: {
-			alert: '#a2a2b9',
+			info: '#a2a2b9',
+			error: '#ef4058',
 			success: '#4bbac5',
 			warning: '#e6a533',
 			question: '#6b70e3',
@@ -133,27 +162,38 @@ export default {
 		setStyleItem() {
 			return {
 				zIndex: `${this.zIndex + this.index}`,
-				boxShadow: this.lastOfType ? '0px 5px 40px rgba(32, 31, 54, .3)' : 'none',
-				border: this.lastOfType ? 'none' : '1px solid rgba(32, 31, 54, 0.1)'
+				boxShadow: this.lastOfType ? '0px 5px 30px rgba(32, 31, 54, .5)' : 'none',
+				borderLeft: !this.lastOfType && this.isPrevShow  ? '1px solid rgba(32, 31, 54, 0.1)' : 'none',
+				borderRight: !this.lastOfType && this.isPrevShow  ? '1px solid rgba(32, 31, 54, 0.1)' : 'none',
+				borderTop: !this.lastOfType && this.isUpTransform || this.isPrevShow  ? '1px solid rgba(32, 31, 54, 0.1)' : 'none',
+				borderBottom: !this.lastOfType && !this.isUpTransform || this.isPrevShow ? '1px solid rgba(32, 31, 54, 0.1)' : 'none'
 			}
 		},
 		setStylePositionItem() {
 			const mapPosition = {
 				'left top': { left: 0, top: `${this.indexType * 5}px` },
 				'left bottom': { left: 0, bottom: `${this.indexType * 5}px` },
-				'left center': { left: 0, top: `calc(50% + ${this.indexType * 5}px )`, transform: 'translateY(-50%)' },
+				'left center': { left: 0, top: `calc(50% + ${this.indexType * 5 - (this.height / 2)}px )` },
 
 				'right top': { right: 0, top: `${this.indexType * 5}px` },
-				'right center': { right: 0, top: `calc(50% + ${this.indexType * 5}px )`, transform: 'translateY(-50%)' },
+				'right center': { right: 0, top: `calc(50% + ${this.indexType * 5 - (this.height / 2)}px )` },
 				'right bottom': { right: 0, bottom: `${this.indexType * 5}px` },
 
-				'center top': { left: '50%', top: `${this.indexType * 5 }px`, transform: 'translateX(-50%)' },
-				'center center': { left: '50%', top: `calc(50% + ${this.indexType * 5}px )`, transform: 'translate(-50%, -50%)' },
-				'center bottom': { left: '50%', bottom: `${this.indexType * 5}px`, transform: 'translateX(-50%)' },
+				'center top': { left: `calc(50% - ${(this.width / 2)}px)`, top: `${this.indexType * 5}px` },
+				'center center': { left: `calc(50% - ${(this.width / 2)}px)`, top: `calc(50% + ${this.indexType * 5 - (this.height / 2)}px )` },
+				'center bottom': { left: `calc(50% - ${(this.width / 2)}px)`, bottom: `${this.indexType * 5}px` },
 			}
 			
 			return mapPosition[this.position]
 		},
+		setComputedPositionItem() {
+			const { x, y } = this.computedPos
+			
+			return {
+				left: `${x}px`,
+				top: `${y}px`,
+			}
+		}
 	},
 	methods: {
 		add(color, type) {
@@ -162,23 +202,58 @@ export default {
 				type,
 			})
 		},
-		makeAction({ value, resolve }) {
+		makeAction({ name, value, resolve }) {
 			resolve({
+				name,
 				value,
-				...this.getResult()
+				...this.getComponentValue()
 			})
 			
 			this.$emit('remove')
 		},
-		getResult() {
-			return this.cResult !== null
-				? { cResult: this.cResult } : {}
+		getComponentValue() {
+			return this.componentValue !== null
+				? { componentValue: this.componentValue } : {}
 		},
-		setResult(result) {
-			this.cResult = result
+		setComponentValue(result) {
+			this.componentValue = result
+		},
+		grab(e) {
+			const { layerX, layerY } = e
+
+			this.computedPos.layerX = layerX
+			this.computedPos.layerY = layerY
+			this.isGrab = true
+		},
+		move(e) {
+			const { layerX, layerY } = this.computedPos
+				, { x, y } = e
+
+			this.computedPos.x = x - layerX
+			this.computedPos.y = y - layerY
 		}
 	},
 	watch: {
+		isGrab(grab) {
+			const action = grab ? 'add' : 'remove'
+
+			if (this.prevIdOfGroup) {
+				const prevIdOfGroup = this.$parent.$children
+					.find(({ id: _id }) => _id === this.prevIdOfGroup)
+
+				prevIdOfGroup.isPrevShow = grab
+			}
+
+			if (grab) {
+				this.zIndex = this.zIndex * 2
+			} else {
+				this.zIndex = 2000
+				this.computedPos = getPosition()
+			}
+
+			window[`${action}EventListener`]('mousetouch-action: nonedown', this.move)
+			window[`${action}EventListener`]('mousetouch-action: nonemove', this.move)
+		},
 		isClosingStart: {
 			immediate: true,
 			handler(is) {
@@ -192,6 +267,18 @@ export default {
 				
 			}
 		}
+	},
+	mounted() {
+		const node = this.$refs[this.id]
+		
+		this.width = node.offsetWidth
+		this.height = node.offsetHeight
+
+		window.addEventListener('mousetouch-action: noneup', () => {
+			if (this.isGrab) {
+				this.isGrab = false
+			}
+		})
 	}
 }
 </script>
@@ -204,6 +291,9 @@ export default {
 		border-radius: 12px;
 		background-color: #fff;
 		position: fixed;
+		touch-action: none;
+		user-select: none;
+		cursor: grab;
 
 		&::before {
 			content: '';
@@ -215,6 +305,23 @@ export default {
 			background-repeat: no-repeat;
 			position: absolute;
 			z-index: -1;
+		}
+
+		&:hover {
+			transition: box-shadow .2s;
+			box-shadow: 0px 5px 10px rgba(32, 31, 54, .5) !important;
+		}
+
+		&--behind {
+			&::after {
+				content: '';
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				background: linear-gradient(180deg, transparent, #fff 40%);
+			}
 		}
 	}
 
@@ -269,7 +376,6 @@ export default {
 		animation: leave-notify-item .4s;
 
 		@keyframes leave-notify-item {
-			// 100% { transform: translate(var(--translateX), -50vh); }
 			100% { transform: translate(var(--translateX), var(--translateY)); }
 		}
 	}

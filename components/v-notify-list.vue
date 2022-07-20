@@ -1,31 +1,35 @@
 <template>
-	<div class="v-notify-list">
-		<transition-group name="notify-list">
-			<VNotifyItem
-				v-for="({
-					id,
-					options,
-					indexType,
-					lastOfType,
-					isClosingStart
-				}, i) of notifyList"
-				v-bind="options"
-				
-				:key="id"
-				:index="i"
-				:indexType="indexType"
-				:lastOfType="lastOfType"
-				:length="notifyList.length"
-				:isClosingStart="isClosingStart"
+	<transition-group name="notify-list"
+		tag="div"
+	>
+		
+		<VNotifyItem
+			v-for="({
+				id,
+				options,
+				indexType,
+				lastOfType,
+				isClosingStart,
+				prevIdOfGroup
+			}, i) of notifyList"
+			
+			v-bind="options"
+			
+			:id="id"
+			:key="id"
+			:index="i"
+			:indexType="indexType"
+			:lastOfType="lastOfType"
+			:length="notifyList.length"
+			:isClosingStart="isClosingStart"
+			:prevIdOfGroup="lastOfType ? prevIdOfGroup : null"
 
-				@remove="$emit('remove', id)"
-			/>
-		</transition-group>
-	</div>
+			@remove="$emit('remove', id)"
+		/>
+	</transition-group>
 </template>
 
 <script>
-import notify from '../notify'
 import VNotifyItem from './v-notify-item'
 
 export default {
@@ -48,6 +52,21 @@ export default {
 			list.forEach(notify => {
 				this.$set(notify, 'lastOfType', positionsId.includes(notify.id))
 			})
+		},
+		setPrevIdOfGroup(list, positions) {
+			positions
+				.forEach(pos => {
+					const group = list.filter(({ options: { position } }) => pos === position)
+						,	groupLen = group.length
+
+					this.$set(
+						group[groupLen - 1],
+						'prevIdOfGroup',
+						groupLen >= 2
+							? group[groupLen - 2].id
+							: null
+					)
+				})
 		},
 		setPropIndexType(list, positions) {
 			const typeGroupArray = positions.map(pos => {
@@ -83,6 +102,7 @@ export default {
 
 			this.setPropClosingStart(list)
 			this.setPropIndexType(list, uniqPositions)
+			this.setPrevIdOfGroup(list, uniqPositions)
 			this.setPropLastOfType(list, uniqPositions)
 		}
 	}
