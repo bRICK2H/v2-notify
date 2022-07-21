@@ -15,13 +15,13 @@
 		@mousedown="grab"
 	>
 
-		<!-- <img v-show="isCloseButton" 
+		<img v-show="isCloseButton" 
 			class="v-notify-item-close"
 			src="../assets/svg/close.svg"
 			alt="close"
 			@mousedown.stop
 			@click="$emit('remove')"
-		> -->
+		>
 		
 		<div class="v-notify-item-content">
 			<h2 v-show="title"
