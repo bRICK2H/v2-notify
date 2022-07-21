@@ -1,6 +1,7 @@
 <template>
 	<div class="v-notify-item"
-		:ref="id"
+		:id="notifyItemRef"
+		:ref="notifyItemRef"
 		:class="{ 'v-notify-item--behind': !lastOfType && !isGrab && !isPrevShow}"
 		:style="[
 			setStyleItem,
@@ -139,6 +140,7 @@ export default {
 		zIndex: 2000,
 		timeoutId: 0,
 		isGrab: false,
+		notifyItemRef: '',
 		componentValue: null,
 		computedPos: getPosition(),
 		mapColor: {
@@ -268,16 +270,18 @@ export default {
 			}
 		}
 	},
+	created() {
+		this.notifyItemRef = `#id-${String(Math.random()).slice(2, 10)}`
+	},
 	mounted() {
-		const node = this.$refs[this.id]
+		const node = this.$refs[this.notifyItemRef]
+			?? document.querySelector(this.notifyItemRef)
 		
 		this.width = node.offsetWidth
 		this.height = node.offsetHeight
 
 		window.addEventListener('mouseup', () => {
-			if (this.isGrab) {
-				this.isGrab = false
-			}
+			if (this.isGrab) this.isGrab = false
 		})
 	}
 }
