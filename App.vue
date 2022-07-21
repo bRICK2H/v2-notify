@@ -79,10 +79,9 @@ export default {
 
 <style lang="scss">
 	.v2-notify-container {
-		position: fixed;
+		position: absolute;
 		top: 0;
 		left: 0;
-		border: 1px solid green;
 		
 		&--layer {
 			width: 100%;
