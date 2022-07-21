@@ -62,8 +62,6 @@ export default {
 			const index = this.notifyList
 				.findIndex(({ id: _id }) => _id === id)
 
-			console.log('index', index)
-
 			this.$delete(this.notifyList, index)
 		},
 		removeOnLayer({ target }) {
