@@ -15,13 +15,13 @@
 		@mousedown="grab"
 	>
 
-		<img v-show="isCloseButton" 
+		<!-- <img v-show="isCloseButton" 
 			class="v-notify-item-close"
 			src="../assets/svg/close.svg"
 			alt="close"
 			@mousedown.stop
 			@click="$emit('remove')"
-		>
+		> -->
 		
 		<div class="v-notify-item-content">
 			<h2 v-show="title"
@@ -251,8 +251,8 @@ export default {
 				this.computedPos = getPosition()
 			}
 
-			window[`${action}EventListener`]('mousetouch-action: nonedown', this.move)
-			window[`${action}EventListener`]('mousetouch-action: nonemove', this.move)
+			window[`${action}EventListener`]('mousedown', this.move)
+			window[`${action}EventListener`]('mousemove', this.move)
 		},
 		isClosingStart: {
 			immediate: true,
@@ -274,7 +274,7 @@ export default {
 		this.width = node.offsetWidth
 		this.height = node.offsetHeight
 
-		window.addEventListener('mousetouch-action: noneup', () => {
+		window.addEventListener('mouseup', () => {
 			if (this.isGrab) {
 				this.isGrab = false
 			}
@@ -291,7 +291,6 @@ export default {
 		border-radius: 12px;
 		background-color: #fff;
 		position: fixed;
-		touch-action: none;
 		user-select: none;
 		cursor: grab;
 

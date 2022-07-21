@@ -1,7 +1,7 @@
 <template>
 	<div class="v2-notify-container"
 		:class="setClassLayer"
-		@click="closeOnLayerId ? remove(closeOnLayerId) : null"
+		@click="removeOnLayer($event)"
 	>
 
 		<VNotifyList
@@ -62,7 +62,18 @@ export default {
 			const index = this.notifyList
 				.findIndex(({ id: _id }) => _id === id)
 
+			console.log('index', index)
+
 			this.$delete(this.notifyList, index)
+		},
+		removeOnLayer({ target }) {
+			const LAYER = 'v2-notify-container--layer'
+
+			if ([...target.classList].includes(LAYER)) {
+				this.closeOnLayerId
+					? this.remove(this.closeOnLayerId)
+					: null
+			}
 		}
 	}
 }
