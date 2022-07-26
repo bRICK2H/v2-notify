@@ -24,23 +24,29 @@
 			@click="$emit('remove')"
 		>
 		
-		<div class="v-notify-item-content">
-			<h2 v-show="title"
-				class="v-notify-item-title"
-			>
-				{{ title }}
-			</h2>
+		<div class="v-notify-scroll-content">
+			<div class="v-notify-item-content">
+				<h2 v-show="title"
+					class="v-notify-item-title"
+				>
+					{{ title }}
+				</h2>
 
-			<p v-show="text"
-				class="v-notify-item-text"
-			>
-				{{ text }}
-			</p>
+				<p v-show="text"
+					class="v-notify-item-text"
+				>
+					{{ text }}
+				</p>
 
-			<component :is="component"
-				@input="setComponentValue"
-			/>
-
+				<div v-show="component"
+					class="v-notify-item-component"
+				>
+					<component :is="component"
+						@mousedown.native.stop
+						@input="setComponentValue"
+					/>
+				</div>
+			</div>
 		</div>
 
 		<div v-show="actions.length"
@@ -334,11 +340,16 @@ export default {
 		top: 10px;
 		cursor: pointer;
 	}
+	.v-notify-scroll-content {
+		max-height: 48vh;
+		overflow: auto;
+		margin: 52px 2px 16px 16px;
+	}
 	.v-notify-item-content {
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		padding: 52px 16px 16px;
+		padding-right: 14px;
 	}
 	.v-notify-item-title {
 		font-size: 16px;
@@ -351,6 +362,9 @@ export default {
 		font-weight: 400;
 		margin-bottom: 16px;
 		line-height: 20px;
+	}
+	.v-notify-item-component {
+		cursor: pointer;
 	}
 	.v-notify-item-actions {
 		display: flex;

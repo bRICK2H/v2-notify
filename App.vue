@@ -87,7 +87,7 @@ export default {
 			width: 100%;
 			height: 100%;
 			
-			z-index: 1999;
+			z-index: 50999;
 
 			transition: .2s;
 			background: rgba(0, 0, 0, .5);
