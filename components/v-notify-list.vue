@@ -24,7 +24,7 @@
 			:isClosingStart="isClosingStart"
 			:prevIdOfGroup="lastOfType ? prevIdOfGroup : null"
 
-			@remove="$emit('remove', id)"
+			@remove="$emit('remove', { id, options })"
 		/>
 	</transition-group>
 </template>

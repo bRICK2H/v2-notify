@@ -11,6 +11,7 @@ export default class {
 				id: Symbol('id'),
 				config: this.config,
 				options: {
+					resolve,
 					...options,
 					...(() => {
 						const actions = options?.actions

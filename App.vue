@@ -32,11 +32,9 @@ export default {
 		isLayer() {
 			return this.notifyList.some(({ options: { layer } }) => layer)
 		},
-		closeOnLayerId() {
-			const closeOnLayer = this.notifyList
+		closeOnLayerItem() {
+			return this.notifyList
 				.findLast(({ options: { closeOnLayer } }) => closeOnLayer)
-			
-			return closeOnLayer ? closeOnLayer.id : null
 		},
 
 	},
@@ -58,19 +56,20 @@ export default {
 				? this.notifyList.unshift(item)
 				: this.notifyList.push(item)
 		},
-		remove(id) {
+		remove({ id, options: { resolve } }) {
 			const index = this.notifyList
 				.findIndex(({ id: _id }) => _id === id)
 
+			resolve({ name: 'closed', value: true })
 			this.$delete(this.notifyList, index)
 		},
 		removeOnLayer({ target }) {
 			const LAYER = 'v2-notify-container--layer'
 
 			if ([...target.classList].includes(LAYER)) {
-				this.closeOnLayerId
-					? this.remove(this.closeOnLayerId)
-					: null
+				if (this.closeOnLayerItem) {
+					this.remove(this.closeOnLayerItem)
+				}
 			}
 		}
 	}
