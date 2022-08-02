@@ -1,5 +1,6 @@
 <template>
 	<div class="v-notify-item"
+		tabindex="0"
 		:id="notifyItemRef"
 		:ref="notifyItemRef"
 		:class="{ 'v-notify-item--behind': !lastOfType && !isGrab && !isPrevShow}"
@@ -282,12 +283,20 @@ export default {
 	mounted() {
 		const node = this.$refs[this.notifyItemRef]
 			?? document.querySelector(this.notifyItemRef)
-		
+
+		node.focus()
 		this.width = node.offsetWidth
 		this.height = node.offsetHeight
 
 		window.addEventListener('mouseup', () => {
 			if (this.isGrab) this.isGrab = false
+		})
+		window.addEventListener('keydown', e => {
+			const { code } = e
+
+			if (code === 'Escape') {
+				e.stopPropagation()
+			}
 		})
 	}
 }
@@ -300,6 +309,7 @@ export default {
 		overflow: hidden;
 		border-radius: 12px;
 		background-color: #fff;
+		outline: none;
 		position: fixed;
 		user-select: none;
 		cursor: grab;
