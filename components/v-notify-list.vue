@@ -2,7 +2,6 @@
 	<transition-group name="notify-list"
 		tag="div"
 	>
-		
 		<VNotifyItem
 			v-for="({
 				id,
@@ -82,12 +81,14 @@ export default {
 		setPropClosingStart(list) {
 			const closingArray = list
 				.filter(({ options }) => {
-					const { closingTime, component, actions } = options
+					const { closingTime, component, actions, type } = options
 						, isComponent = component
 						, isActions = actions?.length
 						, isClosingTime = typeof closingTime === 'number'
 
-					return !isActions && !isComponent && isClosingTime
+					console.error(type)
+
+					return (!isActions && !isComponent && isClosingTime) || type === 'success'
 				})
 
 			closingArray.forEach(notify => {
@@ -108,7 +109,3 @@ export default {
 	}
 }
 </script>
-
-<style lang="scss">
-
-</style>

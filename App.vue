@@ -78,7 +78,7 @@ export default {
 
 <style lang="scss">
 	.v2-notify-container {
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		
