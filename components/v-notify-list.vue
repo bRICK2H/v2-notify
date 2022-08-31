@@ -11,9 +11,8 @@
 				isClosingStart,
 				prevIdOfGroup
 			}, i) of notifyList"
-			
 			v-bind="options"
-			
+
 			:id="id"
 			:key="id"
 			:index="i"
@@ -71,7 +70,7 @@ export default {
 			const typeGroupArray = positions.map(pos => {
 				return list.filter(({ options: { position } }) => pos === position)
 			})
-			
+
 			typeGroupArray.forEach(container => {
 				container.forEach((notify, i) => {
 					this.$set(notify, 'indexType', i)
@@ -81,14 +80,12 @@ export default {
 		setPropClosingStart(list) {
 			const closingArray = list
 				.filter(({ options }) => {
-					const { closingTime, component, actions, type } = options
+					const { closingTime, component, actions } = options
 						, isComponent = component
 						, isActions = actions?.length
 						, isClosingTime = typeof closingTime === 'number'
 
-					console.error(type)
-
-					return (!isActions && !isComponent && isClosingTime) || type === 'success'
+					return !isActions && !isComponent && isClosingTime
 				})
 
 			closingArray.forEach(notify => {

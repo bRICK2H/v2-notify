@@ -17,14 +17,14 @@
 		@mousedown="grab"
 	>
 
-		<img v-show="isCloseButton" 
+		<img v-show="isCloseButton"
 			class="v-notify-item-close"
 			src="../assets/svg/close.svg"
 			alt="close"
 			@mousedown.stop
 			@click="$emit('remove')"
 		>
-		
+
 		<div class="v-notify-scroll-content">
 			<div class="v-notify-item-content">
 				<h2 v-show="title"
@@ -162,7 +162,7 @@ export default {
 		isPieceOfSideCenter() {
 			const [center] = this.position.split(' ')
 
-			return center === 'center' 
+			return center === 'center'
 		},
 		isUpTransform() {
 			return this.position.includes('top')
@@ -192,12 +192,12 @@ export default {
 				'center center': { left: `calc(50% - ${(this.width / 2)}px)`, top: `calc(50% + ${this.indexType * 5 - (this.height / 2)}px )` },
 				'center bottom': { left: `calc(50% - ${(this.width / 2)}px)`, bottom: `${this.indexType * 5}px` },
 			}
-			
+
 			return mapPosition[this.position]
 		},
 		setComputedPositionItem() {
 			const { x, y } = this.computedPos
-			
+
 			return {
 				left: `${x}px`,
 				top: `${y}px`,
@@ -217,7 +217,7 @@ export default {
 				value,
 				...this.getComponentValue()
 			})
-			
+
 			this.$emit('remove')
 		},
 		getComponentValue() {
@@ -273,7 +273,6 @@ export default {
 				} else {
 					clearTimeout(this.timeoutId)
 				}
-				
 			}
 		}
 	},
